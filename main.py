@@ -1,10 +1,8 @@
-from click.termui import prompt
 import psycopg2
 import ast
 import dotenv
 import click
 import os
-from rich import print
 
 dotenv.load_dotenv()
 OUTPUT_FILE = './output.py'
