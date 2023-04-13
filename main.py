@@ -1,5 +1,4 @@
 import psycopg2
-import ast
 import dotenv
 import click
 import os
@@ -38,18 +37,27 @@ def get_conn():
 def do(table, key, val):
   conn = get_conn()
   cur = conn.cursor()
-  cur.execute(f"SELECT {key}, {val} FROM {table}")
+  query = f"SELECT {key}, {val} FROM {table};"
+  print(query)
+  cur.execute(query)
   rows = cur.fetchall()
+  print(f'len -> {len(rows)}')
 
   data = {}
   for row in rows:
     data[row[0]] = row[1]
 
   with open(OUTPUT_FILE, 'w') as f:
+    f.write('data = {\n')
     for k, v in data.items():
-      v_repr = repr(v).replace("\n", "\\n").replace('"', '\\"')
-      var = ast.literal_eval(repr(k))
-      f.write(f"{var} = {v_repr}\n")
+      # clean val
+      val_str = v.replace('\n', '\\n').replace('"', '\\"')
+
+      key_str = f'"{k}"'
+      val_str = f'"{val_str}"'
+      line = f'    {key_str}: {val_str},\n'
+      f.write(line)
+    f.write('\n}')
 
   # close
   cur.close()
